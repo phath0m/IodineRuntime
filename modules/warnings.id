@@ -1,0 +1,32 @@
+use sys;
+
+enum WarningType {
+    UserWarning = 1,
+    SyntaxWarning = 2,
+    DeprecationWarning = 4
+}
+
+USER_WARNING = 1;
+SYNTAX_WARNING = 2;
+DEPRECATION_WARNING = 4
+
+mask = property (
+    lambda () {
+        return sys._getWarnMask ();
+    },
+    lambda (value) {
+        sys._setWarnMask (value);
+    }
+);
+
+func warn (*args) {
+    if (len (args) == 0) {
+        raise ArgumentException (1);
+    }
+
+    if (len (args) == 1) {
+        sys._warn (WarningType.UserWarning, args [0]);
+    } else {
+        sys._warn (args [0], args[1]);
+    }
+}

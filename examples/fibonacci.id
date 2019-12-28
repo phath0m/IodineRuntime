@@ -1,0 +1,17 @@
+#! /usr/bin/iodine
+
+func fibonacci (n) {
+    if (n < 2) {
+        return n
+    }
+
+    return fibonacci (n - 1) + fibonacci (n - 2)
+}
+
+
+print ("Calculating first 10 fibonacci numbers")
+
+fibNumbers = map (0 .. 10, fibonacci)
+
+print (", ".join (fibNumbers))
+

@@ -1,0 +1,131 @@
+/**
+ * Provides methods for disassembling Iodine bytecode
+ * @module dis
+ * @author phath0m
+ */
+
+use inspect
+
+_instructions = [
+    "NOP",
+    "BINARY_OP",
+    "UNARY_OP",
+    "POP",
+    "DUP",
+    "DUP3",
+    "LOAD_CONST",
+    "LOAD_NULL",
+    "LOAD_SELF",
+    "LOAD_TRUE",
+    "LOAD_FALSE",
+    "LOAD_LOCAL",
+    "STORE_LOCAL",
+    "LOAD_GLOBAL",
+    "STORE_GLOBAL",
+    "LOAD_DEFAULT_ATTR",
+    "LOAD_ATTR",
+    "STORE_ATTR",
+    "LOAD_INDEX",
+    "STORE_INDEX",
+    "INVOKE",
+    "INVOKE_SUPER",
+    "INVOKE_VAR",
+    "RETURN",
+    "YIELD",
+    "JUMP_IF_TRUE",
+    "JUMP_IF_FALSE",
+    "JUMP",
+    "BUILD_HASHMAP",
+    "BUILD_LIST",
+    "BUILD_TUPLE",
+    "BUILD_CLOSURE",
+    "GET_ITER",
+    "ITER_GET_NEXT",
+    "ITER_MOVE_NEXT",
+    "ITER_RESET",
+    "RAISE",
+    "PUSH_EXCEPTION",
+    "POP_EXCEPTION",
+    "LOAD_LAST_EXCEPTION",
+    "BEGIN_EXCEPT",
+    "INSTANCE_OF",
+    "DYNAMIC_CAST",
+    "IMPORT",
+    "IMPORT_FROM",
+    "IMPORT_ALL",
+    "SWITCH_LOOKUP",
+    "NULL_COALESCE",
+    "BEGIN_WITH",
+    "END_WITH",
+    "SLICE",
+    "BUILD_GENERATOR_EXPR",
+    "CAST_LOCAL",
+    "INCLUDE_MIXIN",
+    "APPLY_MIXIN",
+    "BUILD_FUNCTION",
+    null,
+    "BUILD_CLASS",
+    "BUILD_ENUM",
+    "BUILD_CONTRACT",
+    "BUILD_MIXIN",
+    "BUILD_TRAIT",
+    "MATCH_PATTERN",
+    "UNWRAP",
+    "UNPACK",
+    "TEST_UNWRAP",
+    "BINARY_ADD",
+    "BINARY_SUB",
+    "BINARY_DIV",
+    "BINARY_MUL",
+    "BINARY_MOD",
+    "BINARY_AND",
+    "BINARY_OR",
+    "BINARY_XOR",
+    "BINARY_GREATER_THAN",
+    "BINARY_LESS_THAN",
+    "BINARY_GREATER_THAN_OR_EQU",
+    "BINARY_LESS_THAN_OR_EQU",
+    "BINARY_HALF_RANGE",
+    "BINARY_CLOSED_RANGE",
+    "BINARY_LEFT_SHIFT",
+    "BINARY_RIGHT_SHIFT",
+    "BINARY_LOGICAL_AND",
+    "BINARY_LOGICAL_OR",
+    "BINARY_EQUALS",
+    "BINARY_NOT_EQUALS"
+]
+
+
+func _getMnemonic (opcode, argument) {
+    
+    return _instructions [opcode]
+}
+
+/**
+ * Disassembles an iodine method, printing the disassembly to the screen
+ * @param obj An iodine function to disassemble
+ */
+func disassemble (obj) {
+
+    bytecode = inspect.getbytecode (obj)
+
+    lastLine = -1
+    
+    for (ins in bytecode) {
+
+        buffer = StringBuffer ()
+        if (ins.line != lastLine) {
+            buffer.append (Str (ins.line).ljust (8))
+        } else {
+            buffer.append ("".rjust (8))
+        }
+        lastLine = ins.line
+        buffer.append (_getMnemonic (ins.opcode, ins.immediate).ljust (30))
+        
+        buffer.append (ins.immediate)
+        if (ins.immediateref isnot Null) {
+            buffer.append (" (#{Str (ins.immediateref)})")
+        }
+        print (buffer)
+    }
+}

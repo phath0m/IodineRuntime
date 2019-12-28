@@ -1,0 +1,21 @@
+use Whirlpool from . _whirlpool
+
+
+_algorithms = {
+    "whirlpool" : Whirlpool
+}
+
+
+/**
+ * Returns the digest of the supplied string
+ * calculated using the specified hash algorithm
+ * @param algo The name of the algorithm to use
+ * @param value The value whose digest will be returned
+ */
+func hash (algo, value) {
+    hashAlgol = _algorithms [algo] (value)
+
+    #hashAlgol.update (value)
+
+    return hashAlgol.hexdigest ()
+}

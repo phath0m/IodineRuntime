@@ -1,0 +1,123 @@
+/**
+ * Provides several classes for handling and dispatching events
+ * @module events
+ * @author phath0m
+ */
+
+/**
+ * Provides a node.js like EventEmitter class for handling events
+ */
+class EventEmitter {
+    func EventEmitter (self) {
+        self.dict = {};
+    }
+
+    /**
+     * Defines an event handler for a specified event
+     * @param event The name of the event
+     * @param callback The event handler
+     */
+    func on (self, event, callback) {
+        if !self.dict.contains (event) {
+            self.dict [event] = []
+        } 
+        self.dict [event].append (callback);
+    }
+
+    /**
+     * Defines an event handler for a specified event which will be called once
+     * then removed 
+     * @param event The name of the event
+     * @param callback The event handler
+     */
+    func once (self, event, callback) {
+        if !self.dict.contains (event) {
+            self.dict [event] = [];
+        }
+
+        func inner (*args) {
+            callback (*args);
+            innerId = id (inner);
+
+            for callback in dict[event] {
+                if id (callback) == id (inner) {
+                    dict[event].remove (callback)
+                    return null;
+                }
+            }
+        }
+
+        self.dict [event].append (inner);
+    }
+
+    /**
+     * Removes an event handler
+     * @param callback The event handler to remove
+     */
+    func remove (self, callback) {
+        
+        for key, value in self.dict {
+            value.discard (callback)
+        }   
+    }
+
+    /**
+     * Raises an event and dispatches the appropriate event handler if it
+     * exists 
+     * @param event The name of the event
+     * @param args Arguments to be passed to the event hander
+     */
+    func emit (self, event, *args) {
+        if self.dict.contains (event) {
+            for callback in self.dict [event] {
+                try {
+                    callback (*args);
+                } except (e) {
+                    if event != "exception" && self.dict.contains ("exception") {
+                        self.emit ("exception", e);
+                    } else {
+                        raise e;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Represents a single event in which multiple event handlers can be added
+ */
+class Event {
+    func Event (self) {
+        self._handlers = [];
+    }
+
+    /**
+     * Raises the event, invoking all registered event handlers
+     * @param *args Arguments to pass on to each handler
+     */
+    func __invoke__ (self, *args) {
+        for handler in self._handlers {
+            handler (*args);
+        }   
+    }
+
+    /**
+     * Overloaded the + operator allowing for events to be added simply by
+     * doing myEvent += handler
+     * @param callback The event handler
+     */
+    func __add__ (self, callback) {
+        self._handlers.append (callback);
+        return self;
+    }
+
+    /**
+     * Overloads the - operator, allowing for events to be removed simply
+     * by doing myEvent -= handler
+     * @param callback The event handler
+     */
+    func __sub__ (self, callback) {
+        self._handlers.remove (callback);
+    }
+}

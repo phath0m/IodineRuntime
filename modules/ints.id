@@ -1,0 +1,49 @@
+/**
+ * Provides functions for restricting integer bounds
+ * @module std/ints
+ * @author SplittyDev
+ */
+
+/*
+ * This module contains functions to force
+ * any integer to lie within a specific range
+ * using bitwise AND.
+ *
+ * To create an arbitrarily large integer, whose size
+ * is only bound by the available memory, use the BigInt type.
+ */
+
+/**
+ * Forces an integer into signed byte bounds
+ */
+func int8 (x) => Int (x) & 0x7F
+
+/**
+ * Forces an integer into unsigned byte bounds
+ */
+func uint8 (x) => Int (x) & 0xFF
+
+/**
+ * Forces an integer into signed short bounds
+ */
+func int16 (x) => Int (x) & 0x7FFF
+
+/**
+ * Forces an integer into unsigned short bounds
+ */
+func uint16 (x) => Int (x) & 0xFFFF
+
+/**
+ * Forces an integer into signed word bounds
+ */
+func int32 (x) => Int (x) & 0x7FFFFFFF
+
+/**
+ * Forces an integer into unsigned word bounds
+ */
+func uint32 (x) => Int (x) & 0xFFFFFFFF
+
+/**
+ * Forces an integer into signed qword bounds
+ */
+func int64 (x) => Int (x) & 0x7FFFFFFFFFFFFFFF

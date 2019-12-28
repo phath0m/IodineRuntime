@@ -1,0 +1,468 @@
+#! /usr/bin/iodine
+
+
+# THIS IS A WORK IN PROGRESS....
+#
+# Inspired by https://github.com/SplittyDev/iosh 
+
+use sys
+use curses
+use inspect
+use iterutils
+use Stack from collections
+
+class Shell {
+    
+    /**
+     * Runs the read-evaluate-print-loop
+     */
+    func run (self) {
+        curses.print ("Iodine v{}.{}.{}\n".format (
+            sys.VERSION_MAJOR,
+            sys.VERSION_MINOR,
+            sys.VERSION_PATCH
+        ))
+
+        self._dict = {
+            "require" : require, # Required to import modules
+            "help" : help        # Export
+        }
+        
+        self.prompt = Stack ()
+        self.prompt.push ("λ ")
+        
+        # We must load the prelude module so we can use
+        # builtins
+        self.eval ('use * from __builtins__')
+        
+        while (true) {
+            self.runIteration ()
+        }
+    }
+
+    /**
+     * Single read-evaluate-print iteration
+     */
+    func runIteration (self) {
+        curses.attron (curses.COLOR_PAIR (0))
+        curses.print (self.prompt [0])
+        self.prompt.push ('| ')
+        curses.attroff (curses.COLOR_PAIR (0))
+        
+        curses.refresh ()
+        
+        code = self.readStatements ()
+        self.prompt.pop ()
+        ret = self.eval (code)
+        
+        if (ret isnot Null) {
+            prettyRepr (ret)
+        }
+        curses.print ("\n")
+        
+        curses.refresh ()
+    }
+
+    func readStatements (self) {
+        buf = StringBuffer ()
+        matcher = LineContinuationRule ()
+        line = ""
+        while (matcher.isMatch (line = self.readln ())) {
+            buf.append (line)
+
+            if (line.trim () == "}") {
+                y, x = curses.getyx (null)
+                curses.mvprint (y - 1, matcher.indent, "  }  \n")
+            }
+
+            curses.print (self.prompt [0])
+            curses.print (" ".ljust (matcher.indent))
+            curses.refresh ()          
+        }
+
+        buf.append (line)
+
+        if (line == "}") {
+            y, x = curses.getyx (null)
+            curses.mvprint (y - 1, matcher.indent, "  }  \n")
+        }
+
+        return Str (buf)
+    }
+
+    func readln (self) {
+        return input ("")
+    }
+    
+    /**
+     * Evaluates a string of iodine code, returning the result of the last
+     * evaluated expression.
+     * @param code The code to evaluate
+     * @returns The last evaluated expression
+     */
+    func eval (self, code) {
+        try {
+            module = compile (code)
+       
+            res = invoke (module, self._dict)
+
+            for (key, value in inspect.getattributes (module)) {
+                self._dict [key] = value
+            }
+            
+            return res
+
+        } except (e) {
+
+            if (e is SyntaxException) {
+                for (error in e.errors) {
+                    curses.print (error)
+                }
+            } else {
+                curses.print (e.message + "\n")
+         
+                for (line in e.stacktrace.split ("\n")) {
+                    curses.print ("    " + line + "\n")
+                }
+            }
+            return null
+        }
+    }
+}
+
+class LineContinuationRule {
+
+    func LineContinuationRule (self) {
+        self._remainder = 0
+        self.indent = 0
+    }
+
+    func isMatch (self, source) {
+        balance = self.getBraceBalance (source)
+        self._remainder += balance
+        self.indent = self._remainder * 2
+    }
+
+    func getBraceBalance (self, source) {
+        openBraces = reduce (source, 0, lambda (i, ch) { 
+            if (ch == '{')
+                return i + 1
+            return i
+        })
+
+        closeBraces = reduce (source, 0, lambda (i, ch) {
+            if (ch == '}')
+                return i + 1
+            return i
+        })
+
+        return openBraces - closeBraces
+    }
+}
+
+/*
+ * Note: This function is exported to the REPL
+ */
+
+/**
+ * Provides documentation relating to a function
+ * @param function The function whose documentation will be displayed
+ */
+func help (function) {
+
+    printcn (1, "Documentation:\n")
+
+    indent ()
+
+    if (inspect.hasattribute (function, "__doc__") &&
+        function.__doc__ != "") {
+
+        for (line in function.__doc__.split ('\n')) {
+            if (!line.startswith ("@")) {
+                printc (3, line + "\n")      
+            }  
+        }
+    } else {
+        printc (3, "No documentation available")
+    }
+
+    curses.print ("\n")
+
+    unindent ()
+
+    printcn (1, "Arguments:\n")
+
+    indent () 
+
+    info = getParamInfo (function)
+
+    for (argument, description in info) {
+        printc (1, argument + " ")
+        printc (3, description + "\n")
+    }
+
+    unindent ()
+
+    return null
+}
+
+/**
+ * Returns a list of tuples for each argument in a supplied function.
+ * Each tuple in the returned list contains the name of the argument
+ * as well as any documentation associated with the argument
+ * @param function The function
+ */
+func getParamInfo (function) {
+    paramDoc = [] # Empty list
+
+    if (inspect.hasattribute (function, "__doc__") &&
+        function.__doc__ != "") {
+        for (line in function.__doc__.split ('\n')) {
+            if (line.startswith ("@param ")) {
+                tokens = line.split (' ')
+                
+                if (len (tokens) > 2) {
+                    name = tokens [1]
+                    description = " ".join (iterutils.skip (tokens, 2))
+                    paramDoc.append ((name, description))
+                }
+            }
+        }
+    }
+
+    if (len (paramDoc) == 0 && inspect.isfunction (function)) {
+        argspec = inspect.getargspec (function)
+
+        for (param in argspec [0]) {
+            paramDoc.append ((param, ""))
+        }
+
+        if (argspec [1] isnot Null) {
+            paramDoc.append (("*" + argspec [1], ""))
+        }
+
+        if (argspec [2] isnot Null) {
+            paramDoc.append (("**" + argspec [2], ""))
+        }
+    }
+
+    return paramDoc
+}
+
+/**
+ * Prints a nice colorful representation of the supplied argument
+ */
+func prettyRepr (value) {
+
+    lookup = {
+        Str : reprStr,
+        List : reprList,
+        Tuple : reprTuple,
+        Dict : reprDict
+    }
+
+    if (lookup.contains (type (value))) {
+        lookup [type (value)] (value)
+    } else if (inspect.isclass (value)) {
+        reprClass (value)
+    } else if (inspect.isfunction (value)) {
+        reprFunction (value)
+    } else if (inspect.ismodule (value)) { 
+        reprModule (value)
+    } else {
+        reprDefault (value)
+    }
+}
+
+func reprDefault (primative) {
+    printcn (2, repr (primative))
+}
+
+func reprStr (str) {
+    printcn (3, repr (str))
+}
+
+func reprList (list) {
+    printcn (0, "[List: [\n")
+    indent ()
+    printc (1, "")
+    maxElements = 10
+   
+    for (i, item in enumerate (list)) {
+        pushIndent ()
+        if (i != 0) {
+            curses.print (", ")
+        }
+        if (i % maxElements == 0 && i != 0) {
+            curses.print ("\n")
+            printc (1, "")
+        }
+        prettyRepr (item)
+        popIndent ()
+    }
+    unindent ()
+    curses.print ("\n")
+    printc (0, "]]")
+}
+
+func reprTuple (tuple) {
+    printcn (0, "[Tuple: (\n")
+    indent ()
+    printc (1, "")
+    maxElements = 10
+    
+    for (i, item in enumerate (tuple)) {
+        pushIndent ()
+        if (i != 0) {
+            curses.print (", ")
+        }
+        if (i % maxElements == 0 && i != 0) {
+            curses.print ("\n")
+            printc (1, "")
+        }
+        prettyRepr (item)
+        popIndent ()
+    }
+    unindent ()
+    curses.print ("\n")
+    printc (0, ")]")
+}
+
+func reprDict (dict) {
+    printcn (0, "[Dict : {\n")
+    indent ()
+    
+    for (key, value in dict) {
+        pushIndent ()
+        printc (1, "")
+        prettyRepr (key)
+        printcn (0, " : ")
+        prettyRepr (value)
+        curses.print ("\n")
+        popIndent ()
+    }
+
+    unindent ()
+    printc (0, "}]")
+}
+
+func reprClass (clazz) {
+    printcn (0, "[Class: ")
+    printcn (1, clazz.__name__)
+    printcn (0, "]\n");
+    indent ()
+    functions = filter (
+        inspect.getmembers (clazz),
+        lambda (p) => inspect.isfunction (p [1])
+    )
+    for (key, value in functions) {
+        pushIndent ()
+        printc (1, "")
+        prettyRepr (value)
+        curses.print ("\n")
+        popIndent ()
+    }
+    unindent ()
+}
+
+func reprModule (module) {
+    printcn (0, "[[Module: ")
+    printcn (1, module.__name__)
+    printcn (0, "]\n");
+    
+    indent ()
+
+    for (key, value in inspect.getmembers (module)) {
+        pushIndent ()
+        printc (1, "")
+        printcn (1, key)
+        printcn (0, " : ")
+        prettyRepr (value);
+        curses.print ("\n")
+        popIndent ();
+    }
+    unindent ()
+    
+    printc (0, "]\n");
+}
+
+
+func reprFunction (function) {
+    
+    func getFuncType () {
+        if (inspect.ismethod (function)) {
+            return "Bound"
+        }
+        
+        return "Function"
+    }
+    
+    argspec = inspect.getargspec (function)
+    printcn (0, "[#{getFuncType ()}: ")
+    printcn (1, function.__name__)
+    printcn (1, " (")
+    printcn (1, ", ".join (argspec [0]))
+    printcn (1, ")")
+    printcn (0, "]")
+}
+
+
+/*
+ * Helper methods for printing to the terminal 
+ */
+ 
+_indent = 0
+_indentBlockSize = 4
+_indents = Stack ()
+
+func indent () {
+    _indent += _indentBlockSize
+}
+
+func unindent () {
+    _indent -= _indentBlockSize
+}
+
+func pushIndent () {
+    _indents.push (_indent)
+}
+
+func popIndent () {
+    _indent = _indents.pop ()
+}
+
+
+/**
+ * Print color with indent
+ */
+func printc (color, message) {
+    curses.attron (curses.COLOR_PAIR (color)) 
+    curses.print (' '.rjust (_indent)) 
+    curses.print (message)
+    curses.attroff (curses.COLOR_PAIR (color))
+}   
+
+/** 
+ * Print color with no indent
+ */
+func printcn (color, message) {
+    curses.attron (curses.COLOR_PAIR (color))
+    curses.print (message)
+    curses.attroff (curses.COLOR_PAIR (color))
+}
+
+# Initialize colors
+
+curses.init_pair (0, curses.COLOR_CYAN, 0)
+curses.init_pair (1, curses.COLOR_WHITE, 0)
+curses.init_pair (2, curses.COLOR_YELLOW, 0)
+curses.init_pair (3, curses.COLOR_GREEN, 0)
+
+curses.attron (curses.COLOR_PAIR (1))
+
+# Run the shell
+
+iodineShell = Shell ()
+iodineShell.run ()
+
+curses.attroff (curses.COLOR_PAIR (1))

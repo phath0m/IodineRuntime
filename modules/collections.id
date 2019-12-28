@@ -1,0 +1,799 @@
+/**
+ * Provides classes for working with collections
+ * @module collections
+ * @author SplittyDev
+ */
+
+/**
+ * Any type that can be iterated over
+ */
+trait Iterable {
+
+    /**
+     * Gets the iterator
+     * @yields Object The items
+     */
+    func __iter__ (self)
+}
+
+/**
+ * Any type that can be counted
+ */
+trait Countable {
+
+    /**
+     * Gets the length
+     * @returns Int The length
+     */
+    func __len__ (self)
+}
+
+/**
+ * A collection of objects
+ */
+contract Collection {
+
+    /**
+     * Clears the collection
+     */
+    func clear (self)
+
+    /**
+     * Counts the elements in the collection
+     * @returns Int The element count
+     */
+    func count (self)
+
+    /**
+     * Determines whether the collection is empty
+     * @returns Bool Whether the collection is empty
+     */
+    func empty (self)
+
+    /**
+     * Adds an element to the collection
+     * @param item : Object The element to be added
+     */
+    func add (self, item)
+
+    /**
+     * Removes an element from the collection
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item)
+
+    /**
+     * Determines whether something is an element of the collection
+     * @param item : Object The item
+     * @returns Bool Whether the specified item is an element of the collection
+     */
+    func contains (self, item)
+}
+
+/**
+ * Array
+ */
+class Array implements Collection {
+
+    /**
+     * Constructor
+     * @param **kwargs Optional arguments
+     * @kwparam capacity : Int The capacity
+     * @kwparam items : Iterable The elements to initialize the Array with
+     * @kwparam prealloc : Int The amount of space to be preallocated
+     */
+    func Array (self, **kwargs) {
+        self.list = []
+        self.length = 0
+        self.capacity = -1
+        for key, value in kwargs {
+            match key {
+                case "capacity" {
+                    self.capacity = typecast (Int, value)
+                    for i in 0 .. self.capacity {
+                        self.add (null)
+                    }
+                }
+                case "items" {
+                    self.clear ()
+                    for i in typecast (Iterable, value) {
+                        self.add (i)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clears the collection
+     */
+    func clear (self) {
+        self.list.clear ()
+        self.length = 0
+    }
+
+    /**
+     * Counts the elements in the collection
+     * @returns Int The element count
+     */
+    func count (self) {
+        return self.length
+    }
+
+    /**
+     * Determines whether the collection is empty
+     * @returns Bool Whether the collection is empty
+     */
+    func empty (self) {
+        return self.length == 0
+    }
+
+    /**
+     * Adds an element to the collection
+     * @param item : Object The element to be added
+     */
+    func add (self, item) {
+        if self.length == self.capacity {
+            raise Exception ("Maximum capacity reached.")
+        }
+        self.list.append (item)
+        self.length += 1
+    }
+
+    /**
+     * Removes an element from the collection
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item) {
+        if !self.list.contains (item) {
+            raise Exception ("The item is not an element of the collection.")
+        }
+        if !self.list.discard (item) {
+            raise Exception ("Unable to remove item '#{item}'")
+        }
+        self.length -= 1
+    }
+
+    /**
+     * Removes the specific element from the collection
+     * @param index : Int The index of the element to be removed
+     */
+    func removeat (self, index) {
+        try {
+            self.list.removeat (typecast (Int, index))
+            self.length -= 1
+        } except {
+            raise Exception ("Unable to remove item at index #{index}")
+        }
+    }
+
+    /**
+     * Determines whether something is an element of the collection
+     * @param item : Object The item
+     * @returns Bool Whether the specified item is an element of the collection
+     */
+    func contains (self, item) {
+        return self.list.contains (item)
+    }
+
+    /**
+     * Fills the collection with a value
+     * @param filler The object that the collection is to be filled with
+     * @returns Array The modified collection
+     */
+    func fill (self, filler) {
+        for i in 0 .. self.length {
+            self [i] = filler
+        }
+        return self
+    }
+
+    /**
+     * Fills a part of the collection with a value
+     * @param src_start : Int The start index
+     * @param length : Int The length
+     * @param filler The object that the collection is to be filled with
+     * @returns Array The modified collection
+     */
+    func fillrange (self, src_start, length, filler) {
+        for i in 0 .. length {
+            self [src_start + i] = filler
+        }
+        return self
+    }
+
+    /**
+     * Gets the length
+     * @returns Int The length
+     */
+    func __len__ (self) {
+        return self.count ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __str__ (self) {
+        return self.__repr__ ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __repr__ (self) {
+        return repr (self.list)
+    }
+
+    /**
+     * Gets the item at the specified index
+     * @param i : Int The index
+     * @returns Object The item at the specified index
+     */
+    func __getitem__ (self, i) {
+        return self.list [Int (i)]
+    }
+
+    /**
+     * Sets the item at the specified index
+     * @param i : Int The index
+     * @param item : Object The item
+     */
+    func __setitem__ (self, i, item) {
+        self.list [i] = item
+    }
+    
+    /**
+     * Gets the iterator
+     * @yields Object The items
+     */
+    func __iter__ (self) {
+        for i in 0 .. self.length {
+            yield self.list [i]
+        }
+
+        if self.length == 0 {
+            return []
+        }
+    }
+
+    func Copy (src, src_start, dst, dst_start, length) {
+        for i in 0 .. length {
+            dst [dst_start + i] = src [src_start + i]
+        }
+    }
+}
+
+/**
+ * Set
+ */
+class Set implements Collection {
+
+    /**
+     * Constructor
+     * @param **kwargs Optional arguments
+     * @kwparam capacity : Int The capacity
+     * @kwparam items : Iterable The elements to initialize the Set with
+     */
+    func Set (self, **kwargs) {
+        self.list = []
+        self.cardinality = 0
+        self.capacity = -1
+        for key, value in kwargs {
+            match key {
+                case "capacity" => self.capacity = typecast (Int, value)
+                case "items" {
+                    for i in typecast (Iterable, value) {
+                        self.add (i)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clears the collection
+     */
+    func clear (self) {
+        self.list.clear ()
+        self.cardinality = 0
+    }
+
+    /**
+     * Counts the elements in the collection
+     * @returns Int The element count
+     */
+    func count (self) {
+        return self.cardinality
+    }
+
+    /**
+     * Determines whether the collection is empty
+     * @returns Bool Whether the collection is empty
+     */
+    func empty (self) {
+        return self.cardinality == 0
+    }
+
+    /**
+     * Adds an element to the set
+     * @param item : Object The element to be added
+     */
+    func add (self, item) {
+        if self.cardinality == self.capacity {
+            raise Exception ("Maximum capacity reached.")
+        }
+        if self.contains (item) {
+            return null
+        }
+        self.list.append (item)
+        self.cardinality += 1
+    }
+
+    /**
+     * Removes an element from the set
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item) {
+        i = 0
+        for x in self.list {
+            if x == item {
+                self.list.removeat (i)
+                self.cardinality -= 1
+                return null
+            }
+            i += 1
+        }
+        raise Exception ("The item is not an element of the set.")
+    }
+
+    /**
+     * Returns the union of this and another set
+     * @param other : Set The other set
+     * @returns Set A set containing the union of this and another set
+     */
+    func union (self, other) {
+        typecast (Set, other)
+        set = Set (items: other.list)
+        for item in self.list {
+            if !other.contains (item) {
+                set.add (item)
+            }
+        }
+        return set
+    }
+
+    /**
+     * Returns the intersection of this and another set
+     * @param other : Set The other set
+     * @returns Set A set containing the intersection of this and the other set
+     */
+    func intersection (self, other) {
+        typecast (Set, other)
+        set = Set ()
+        for item in self.list {
+            if other.contains (item) {
+                set.add (item)
+            }
+        }
+        return set
+    }
+
+    /**
+     * Returns the difference of this and another set
+     * @param other : Set The other set
+     * @returns Set A set containing the difference of this and the other set
+     */
+    func difference (self, other) {
+        typecast (Set, other)
+        set = Set ()
+        for item in self.list {
+            if !other.contains (item) {
+                set.add (item)
+            }
+        }
+        return set
+    }
+
+    /**
+     * Determines whether this is a superset of another set
+     * @param other : Set The other set
+     * @returns Bool Whether this is a superset of the other set
+     */
+    func superset (self, other) {
+        typecast (Set, other)
+        i = 0
+        for item in self.list {
+            if other.contains (item) {
+                i += 1
+            }
+        }
+        return other.cardinality == i
+    }
+
+    /**
+     * Determines whether this is a subset of another set
+     * @param other : Set The other set
+     * @returns Bool Whether this is a subset of the other set
+     */
+    func subset (self, other) {
+        typecast (Set, other)
+        i = 0
+        for item in other.list {
+            if self.contains (item) {
+                i += 1
+            }
+        }
+        return self.cardinality == i
+    }
+
+    /**
+     * Determines whether something is an element of the set
+     * @param item : Object The item
+     * @returns bool Whether the specified item is an element of the array
+     */
+    func contains (self, item) {
+        return self.list.contains (item)
+    }
+
+    /**
+     * Gets the length
+     * @returns Int The length
+     */
+    func __len__ (self) {
+        return self.count ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __str__ (self) {
+        return self.__repr__ ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __repr__ (self) {
+        return repr (self.list)
+    }
+
+    /**
+     * Gets the item at the specified index
+     * @param i : Int The index
+     * @returns Object The item at the specified index
+     */
+    func __getitem__ (self, i) {
+        return self.list [i]
+    }
+    
+    /**
+     * Gets the iterator
+     * @yields Object The items
+     */
+    func __iter__ (self) {
+        for i in 0 .. self.cardinality {
+            yield self.list [i]
+        }
+    }
+    
+    /**
+     * Creates a new set from a list
+     * @param lst : Iterable The items
+     * @returns Set A set contaning the elements of the specified lists
+     */
+    func create (items) {
+        return Set (items: typecast (Iterable, items))
+    }
+
+    /**
+     * Returns the union of two sets
+     * @param a : Set The first set
+     * @param b : Set The second set
+     * @returns Set A set containing the union of the two sets
+     */
+    func unionof (a, b) {
+        return typecast (Set, a).union (b)
+    }
+
+    /**
+     * Returns the intersection of two sets
+     * @param a : Set The first set
+     * @param b : Set The second set
+     * @returns Set A set containing the intersection of the two sets
+     */
+    func intersectionof (a, b) {
+        return typecast (Set, a).intersection (b)
+    }
+
+    /**
+     * Returns the difference of two sets
+     * @param a : Set The first set
+     * @param b : Set The second set
+     * @returns Set A set contaning the difference of the two sets
+     */
+    func differenceof (a, b) {
+        return typecast (Set, a).difference (b)
+    }
+
+    /**
+     * Determines whether a set is a superset of another set
+     * @param a : Set The first set
+     * @param b : Set The second set
+     * @returns Bool Whether the first set is a superset of the second set
+     */
+    func supersetof (a, b) {
+        return typecast (Set, a).superset (b)
+    }
+
+    /**
+     * Determines whether a set is a subset of another set
+     * @param a : Set The first set
+     * @param b : Set The second set
+     * @returns Bool Whether the first set is a subset of the second set
+     */
+    func subsetof (a, b) {
+        return typecast (Set, a).subset (b)
+    }
+}
+
+/**
+ * Generic Set
+ */
+class GenericSet extends Set implements Collection {
+
+    /**
+     * Constructor
+     * @param **kwargs Optional arguments
+     * @kwparam T The type
+     * @kwparam capacity : Int
+     * @kwparam items : List
+     */
+    func GenericSet (self, **kwargs) {
+        super (kwargs);
+        self.type = null
+        for key, value in kwargs {
+            match key {
+                case "T" => self.type = value
+            }
+        }
+    }
+
+    /**
+     * Adds an element to the set
+     * @param item : Object The element to be added
+     */
+    func add (self, item) {
+        if self.type is Null {
+            self.type = type (item)
+        }
+        typecast (self.type, item)
+        self.__super__.add (item)
+    }
+
+    /**
+     * Removes an element from the set
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item) {
+        typecast (self.type, item)
+        self.__super__.remove (item)
+    }
+}
+
+/**
+ * Stack
+ */
+class Stack implements Collection {
+
+    /**
+     * Constructor
+     * @param **kwargs Optional arguments
+     * @kwparam capacity : Int
+     * @kwparam items : Iterable
+     */
+    func Stack (self, **kwargs) {
+        self.list = []
+        self.top = 0
+        self.capacity = -1
+        for key, value in kwargs {
+            match key {
+                case "capacity" => self.capacity = typecast (Int, value)
+                case "items" {
+                    for i in typecast (Iterable, value) {
+                        self.push (i)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Clears the collection
+     */
+    func clear (self) {
+        self.list.clear ()
+        self.top = 0
+    }
+
+    /**
+     * Counts the elements in the collection
+     * @returns Int The element count
+     */
+    func count (self) {
+        return self.top
+    }
+
+    /**
+     * Determines whether the collection is empty
+     * @returns Bool Whether the collection is empty
+     */
+    func empty (self) {
+        return self.top == 0
+    }
+
+    /**
+     * Adds an element to the collection
+     * @param item : Object The element to be added
+     */
+    func add (self, item) {
+        raise Exception ("Use Stack.push instead!")
+    }
+
+    /**
+     * Pushes an item onto the stack
+     * @param item : Object The item to be pushed onto the stack
+     */
+    func push (self, item) {
+        if self.top == self.capacity {
+            raise Exception ("Maximum capacity reached.")
+        }
+        self.list.append (item)
+        self.top += 1
+    }
+
+    /**
+     * Pops an item from the stack
+     * @returns Object The item that was popped from the stack
+     */
+    func pop (self) {
+        if self.top == 0 {
+            raise Exception ("There are no elements on the stack.")
+        }
+        self.top -= 1
+        item = self.list [self.top]
+        self.list.removeat (self.top)
+        return item
+    }
+
+    /**
+     * Removes an element from the collection
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item) {
+        for i in 0 .. self.top {
+            if self [i] == item {
+                self.list.removeat (self.top - i - 1)
+                self.top -= 1
+                return null
+            }
+        }
+    }
+
+    /**
+     * Determines whether something is an element of the collection
+     * @param item : Object The item
+     * @returns Bool Whether the specified item is an element of the collection
+     */
+    func contains (self, item) {
+        return self.list.contains (item)
+    }
+
+    /**
+     * Removes an element from the collection
+     * @param item : Object The element to be removed
+     */
+    func removeat (self, index) {
+        self.list.removeat (self.top - typecast (Int, index) - 1)
+        self.top -= 1
+    }
+
+    /**
+     * Gets the length
+     * @returns Int The length
+     */
+    func __len__ (self) {
+        return self.count ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __str__ (self) {
+        return self.__repr__ ()
+    }
+
+    /**
+     * Gets the string representation
+     * @returns Str The string representation
+     */
+    func __repr__ (self) {
+        return repr (self.list)
+    }
+
+    /**
+     * Gets the item at the specified index
+     * @param i : Int The index
+     * @returns Object The item at the specified index
+     */
+    func __getitem__ (self, i) {
+        return self.list [self.top - i - 1]
+    }
+
+    /**
+     * Sets the item at the specified index
+     * @param i : Int The index
+     * @param item : Object The item
+     */
+    func __setitem__ (self, i, item) {
+        self.list [self.top - i - 1] = item
+    }
+    
+    /**
+     * Gets the iterator
+     * @yields Object The items
+     */
+    func __iter__ (self) {
+        for i in 0 .. self.top {
+            yield self [i]
+        }
+    }
+}
+
+/**
+ * Generic Stack
+ */
+class GenericStack extends Stack implements Collection {
+
+    /**
+     * Constructor
+     * @param **Object kwargs Optional arguments
+     * @kwparam capacity : Int
+     * @kwparam items : Iterable
+     * @kwparam T The type
+     */
+    func GenericStack (self, **kwargs) {
+        super (kwargs);
+        self.type = null
+        for key, value in kwargs {
+            match key {
+                case "T" => self.type = value
+            }
+        }
+    }
+
+    /**
+     * Pushes an item onto the stack
+     * @param item : Object The item to be pushed onto the stack
+     */
+    func push (self, item) {
+        if self.type is Null {
+            self.type = type (item)
+        }
+        typecast (self.type, item)
+        self.__super__.push (item)
+    }
+
+    /**
+     * Removes an element from the collection
+     * @param item : Object The element to be removed
+     */
+    func remove (self, item) {
+        typecast (self.type, item)
+        self.__super__.remove (item)
+    }
+}

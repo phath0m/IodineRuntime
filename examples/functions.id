@@ -1,0 +1,37 @@
+#! /usr/bin/iodine
+
+/**
+ * Adds two numbers together
+ * @param The first number to add
+ * @param The second number to add
+ */
+func add (a, b) {
+    return a + b
+}
+
+/**
+ * Adds two numbers together with type enforcement
+ * @param a : Int The first number to add
+ * @param b : Int The second number to add
+ */
+func addInt (a : Int, b : Int) {
+    return a + b
+}
+
+/*
+ * Iodine functions can also be written as this when the function
+ * simply evaluates a function
+ */
+func addFloat (a : Float, b : Float) => a + b
+
+func main () {
+    /*
+     * Iodine functions can also be defined inside functions
+     */
+    func addStr (a : Str, b : Str) => a + b
+
+    print (add (1, 2)) # => 3
+    print (addInt (2, 5)) # => 7
+    print (addFloat (2.4, 1.2)) # => 3.6
+    print (addStr ("Hello, ", "World!")) # => 'Hello, World!'
+}

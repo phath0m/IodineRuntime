@@ -1,0 +1,37 @@
+#! /usr/bin/iodine
+
+use iododoc
+use SimpleHttpServer from net.http
+
+myserver = SimpleHttpServer ()
+
+func handleIndex (response, request) {
+    response.writeln ("Some random documentation to view!<br>");
+    response.writeln ("<li><a href='/module/__builtins__'>Builtins module</a>");
+    response.writeln ("<li><a href='/module/sys'>Sys module</a>");
+    response.writeln ("<li><a href='/module/net/http'>net.http module</a>");
+}
+
+func displayModule (response, request) {
+    try {
+        moduleName = request.url.substr (len ("/modules/") - 1);
+        
+        module = loadmodule (moduleName);
+        
+        resp = StringBuffer ();
+        
+        itemsg = iododoc.compiledoc (module);
+        
+        iododoc.HtmlFormatter ().format (itemsg, response._response);
+        
+        response.writeln (Str (resp));
+    } except (e as ModuleNotFoundException) {
+        response.writeln ("<h2>Could not found module #{moduleName}!</h2>");
+    } 
+}
+
+
+myserver.handle ("^/$", handleIndex)
+myserver.handle ("/module/*", displayModule)
+
+myserver.listen ("0.0.0.0", 8080)

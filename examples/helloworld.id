@@ -1,0 +1,13 @@
+#! /usr/bin/iodine
+
+print ("Hello, World!") # This will get called first
+
+/*
+ * It is worth noting that while iodine code outside of any function bodies will
+ * be executed on startup, the function main is also invoked on startup and 
+ * receives any command line arguments passed to it
+ */
+ 
+func main (args) {
+    print ("Goodbye, world!") # This will get called last
+}

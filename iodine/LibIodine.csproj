@@ -1,0 +1,334 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Clean;Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{7A5BFF77-C783-4D40-AF7F-4C673C20E48B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Iodine</RootNamespace>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <AssemblyName>LibIodine</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+    <Commandlineparameters>/home/grunt/Iodine/tests/test.id</Commandlineparameters>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+    <PlatformTarget>x86</PlatformTarget>
+    <DefineConstants>COMPILE_EXTRAS;DOTNET_45</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Framework)' == '.NET 4.5|NET45' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <PlatformTarget>x86</PlatformTarget>
+    <DefineConstants>COMPILE_EXTRAS;DOTNET_45</DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Nuget|x86' ">
+    <OutputPath>\..\bin\lib</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <Optimize>false</Optimize>
+    <PlatformTarget>anycpu</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="Mono.Posix" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Runtime\Instruction.cs" />
+    <Compile Include="Runtime\Opcode.cs" />
+    <Compile Include="Runtime\IodineObject.cs" />
+    <Compile Include="Runtime\VirtualMachine.cs" />
+    <Compile Include="Runtime\IodineTypeDefinition.cs" />
+    <Compile Include="Runtime\IodineExceptionHandler.cs" />
+    <Compile Include="Compiler\Symbol.cs" />
+    <Compile Include="Compiler\SymbolTable.cs" />
+    <Compile Include="Compiler\ErrorType.cs" />
+    <Compile Include="ExtraModules\DnsModule.cs" />
+    <Compile Include="ExtraModules\SocketsModule.cs" />
+    <Compile Include="ExtraModules\WebClientModule.cs" />
+    <Compile Include="ExtraModules\ZipModule.cs" />
+    <Compile Include="ExtraModules\WinRegModule.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ExtraModules\SslModule.cs" />
+    <Compile Include="Runtime\IIodineProperty.cs" />
+    <Compile Include="Runtime\IodineConfiguration.cs" />
+    <Compile Include="Compiler\SyntaxException.cs" />
+    <Compile Include="Runtime\IodineBuiltinModule.cs" />
+    <Compile Include="Runtime\Debug\DebugServer.cs" />
+    <Compile Include="Runtime\Debug\DebugSession.cs" />
+    <Compile Include="Compiler\SourceUnit.cs" />
+    <Compile Include="Compiler\SourceLocation.cs" />
+    <Compile Include="Runtime\InternalIodineProperty.cs" />
+    <Compile Include="Interop\MethodWrapper.cs" />
+    <Compile Include="Interop\ObjectWrapper.cs" />
+    <Compile Include="Interop\PropertyWrapper.cs" />
+    <Compile Include="Interop\TypeMapping.cs" />
+    <Compile Include="Interop\TypeRegistry.cs" />
+    <Compile Include="Interop\IodineEngine.cs" />
+    <Compile Include="Interop\ClassWrapper.cs" />
+    <Compile Include="Interop\FieldWrapper.cs" />
+    <Compile Include="Interop\IodineDynamicObject.cs" />
+    <Compile Include="Interop\TypeMappings\ArrayTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\BoolTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\CharTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\DoubleTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\FloatTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\Int16TypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\Int32TypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\Int64TypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\ObjectTypeMapping.cs" />
+    <Compile Include="Interop\TypeMappings\StringTypeMapping.cs" />
+    <Compile Include="Compiler\Emit\IBytecodeOptimization.cs" />
+    <Compile Include="Compiler\Emit\Optimizations\ControlFlowOptimization.cs" />
+    <Compile Include="Compiler\Emit\Optimizations\InstructionOptimization.cs" />
+    <Compile Include="Compiler\Emit\ModuleBuilder.cs" />
+    <Compile Include="Compiler\Emit\EmitContext.cs" />
+    <Compile Include="Runtime\IodineModule.cs" />
+    <Compile Include="Runtime\IodineMethod.cs" />
+    <Compile Include="Runtime\StandardModules\RegexModule.cs" />
+    <Compile Include="Runtime\StandardModules\HashModule.cs" />
+    <Compile Include="Runtime\StandardModules\ThreadingModule.cs" />
+    <Compile Include="Runtime\StandardModules\OSModule.cs" />
+    <Compile Include="Runtime\StandardModules\DateTimeModule.cs" />
+    <Compile Include="Runtime\StandardModules\SysModule.cs" />
+    <Compile Include="Runtime\StandardModules\MathModule.cs" />
+    <Compile Include="Runtime\StandardModules\StructModule.cs" />
+    <Compile Include="Compiler\ErrorSink.cs" />
+    <Compile Include="Runtime\BuiltinMethodCallback.cs" />
+    <Compile Include="Runtime\ModuleNotFoundException.cs" />
+    <Compile Include="Runtime\RuntimeException.cs" />
+    <Compile Include="IodineContext.cs" />
+    <Compile Include="Runtime\BuiltInModules.cs" />
+    <Compile Include="Runtime\StandardModules\BuiltinsModule.cs" />
+    <Compile Include="Warning.cs" />
+    <Compile Include="Runtime\StandardModules\FsutilsModule.cs" />
+    <Compile Include="Runtime\IodineContract.cs" />
+    <Compile Include="Runtime\IodineTrait.cs" />
+    <Compile Include="Runtime\IodineClass.cs" />
+    <Compile Include="Runtime\IodineClosure.cs" />
+    <Compile Include="Runtime\IodineGenerator.cs" />
+    <Compile Include="Runtime\IodineEnum.cs" />
+    <Compile Include="Runtime\IodineBoundMethod.cs" />
+    <Compile Include="Util\LinkedStack.cs" />
+    <Compile Include="Compiler\SemanticAnalyser.cs" />
+    <Compile Include="Compiler\Ast\ArgumentList.cs" />
+    <Compile Include="Compiler\Ast\BinaryExpression.cs" />
+    <Compile Include="Compiler\Ast\BreakStatement.cs" />
+    <Compile Include="Compiler\Ast\CallExpression.cs" />
+    <Compile Include="Compiler\Ast\CaseExpression.cs" />
+    <Compile Include="Compiler\Ast\ClassDeclaration.cs" />
+    <Compile Include="Compiler\Ast\CodeBlock.cs" />
+    <Compile Include="Compiler\Ast\ContinueStatement.cs" />
+    <Compile Include="Compiler\Ast\ContractDeclaration.cs" />
+    <Compile Include="Compiler\Ast\DoStatement.cs" />
+    <Compile Include="Compiler\Ast\EnumDeclaration.cs" />
+    <Compile Include="Compiler\Ast\Expression.cs" />
+    <Compile Include="Compiler\Ast\FalseExpression.cs" />
+    <Compile Include="Compiler\Ast\FloatExpression.cs" />
+    <Compile Include="Compiler\Ast\ForeachStatement.cs" />
+    <Compile Include="Compiler\Ast\ForStatement.cs" />
+    <Compile Include="Compiler\Ast\FunctionDeclaration.cs" />
+    <Compile Include="Compiler\Ast\HashExpression.cs" />
+    <Compile Include="Compiler\Ast\IfStatement.cs" />
+    <Compile Include="Compiler\Ast\IndexerExpression.cs" />
+    <Compile Include="Compiler\Ast\IntegerExpression.cs" />
+    <Compile Include="Compiler\Ast\KeywordArgumentList.cs" />
+    <Compile Include="Compiler\Ast\LambdaExpression.cs" />
+    <Compile Include="Compiler\Ast\ListCompExpression.cs" />
+    <Compile Include="Compiler\Ast\ListExpression.cs" />
+    <Compile Include="Compiler\Ast\MatchExpression.cs" />
+    <Compile Include="Compiler\Ast\NameExpression.cs" />
+    <Compile Include="Compiler\Ast\NullExpression.cs" />
+    <Compile Include="Compiler\Ast\PatternExpression.cs" />
+    <Compile Include="Compiler\Ast\RaiseStatement.cs" />
+    <Compile Include="Compiler\Ast\ReturnStatement.cs" />
+    <Compile Include="Compiler\Ast\SelfExpression.cs" />
+    <Compile Include="Compiler\Ast\SliceExpression.cs" />
+    <Compile Include="Compiler\Ast\Statement.cs" />
+    <Compile Include="Compiler\Ast\StatementList.cs" />
+    <Compile Include="Compiler\Ast\StringExpression.cs" />
+    <Compile Include="Compiler\Ast\SuperCallStatement.cs" />
+    <Compile Include="Compiler\Ast\TernaryExpression.cs" />
+    <Compile Include="Compiler\Ast\TraitDeclaration.cs" />
+    <Compile Include="Compiler\Ast\TrueExpression.cs" />
+    <Compile Include="Compiler\Ast\TryExceptStatement.cs" />
+    <Compile Include="Compiler\Ast\TupleExpression.cs" />
+    <Compile Include="Compiler\Ast\UnaryExpression.cs" />
+    <Compile Include="Compiler\Ast\UseStatement.cs" />
+    <Compile Include="Compiler\Ast\WhileStatement.cs" />
+    <Compile Include="Compiler\Ast\WithStatement.cs" />
+    <Compile Include="Compiler\Ast\YieldStatement.cs" />
+    <Compile Include="Compiler\AstNode.cs" />
+    <Compile Include="Compiler\CompilationUnit.cs" />
+    <Compile Include="Compiler\BinaryOperation.cs" />
+    <Compile Include="Compiler\EndOfFileException.cs" />
+    <Compile Include="Compiler\Parser.cs" />
+    <Compile Include="Compiler\Token.cs" />
+    <Compile Include="Compiler\UnaryOperation.cs" />
+    <Compile Include="Compiler\Tokenizer.cs" />
+    <Compile Include="Compiler\Ast\MemberExpression.cs" />
+    <Compile Include="Compiler\Ast\MemberDefaultExpression.cs" />
+    <Compile Include="Compiler\Ast\GeneratorExpression.cs" />
+    <Compile Include="Runtime\IodineGeneratorExpr.cs" />
+    <Compile Include="Compiler\Ast\AssignStatement.cs" />
+    <Compile Include="Util\AttributeDictionary.cs" />
+    <Compile Include="Runtime\StackFrame.cs" />
+    <Compile Include="Compiler\Ast\BigIntegerExpression.cs" />
+    <Compile Include="Interop\TypeMappings\BigIntegerTypeMapping.cs" />
+    <Compile Include="Runtime\BuiltinDocString.cs" />
+    <Compile Include="Compiler\NamedParameter.cs" />
+    <Compile Include="Runtime\IodineMixin.cs" />
+    <Compile Include="Compiler\Ast\MixinDeclaration.cs" />
+    <Compile Include="Compiler\Ast\ExtendStatement.cs" />
+    <Compile Include="Compiler\AstVisitor.cs" />
+    <Compile Include="Compiler\Emit\Label.cs" />
+    <Compile Include="Compiler\Emit\Compiler.cs" />
+    <Compile Include="Compiler\Ast\DecoratedFunction.cs" />
+    <Compile Include="Util\ObjectDictionary.cs" />
+    <Compile Include="Runtime\IodineName.cs" />
+    <Compile Include="Compiler\Emit\MethodBuilder.cs" />
+    <Compile Include="Runtime\CodeObject.cs" />
+    <Compile Include="Compiler\Emit\BytecodeFile.cs" />
+    <Compile Include="Compiler\Ast\Function.cs" />
+    <Compile Include="Runtime\StandardModules\RandomModule.cs" />
+    <Compile Include="Runtime\StandardModules\InspectModule.cs" />
+    <Compile Include="ExtraModules\CursesModule.cs" />
+    <Compile Include="Compiler\SourceReader.cs" />
+    <Compile Include="Compiler\Ast\PatternExtractExpression.cs" />
+    <Compile Include="Runtime\IodineBigInt.cs" />
+    <Compile Include="Runtime\IodineBool.cs" />
+    <Compile Include="Runtime\IodineBytes.cs" />
+    <Compile Include="Runtime\IodineComplex.cs" />
+    <Compile Include="Runtime\IodineDictionary.cs" />
+    <Compile Include="Runtime\IodineException.cs" />
+    <Compile Include="Runtime\IodineFloat.cs" />
+    <Compile Include="Runtime\IodineFormatter.cs" />
+    <Compile Include="Runtime\IodineGlobals.cs" />
+    <Compile Include="Runtime\IodineInteger.cs" />
+    <Compile Include="Runtime\IodineList.cs" />
+    <Compile Include="Runtime\IodineNull.cs" />
+    <Compile Include="Runtime\IodineProperty.cs" />
+    <Compile Include="Runtime\IodineRange.cs" />
+    <Compile Include="Runtime\IodineSlice.cs" />
+    <Compile Include="Runtime\IodineStackFrameWrapper.cs" />
+    <Compile Include="Runtime\IodineStream.cs" />
+    <Compile Include="Runtime\IodineString.cs" />
+    <Compile Include="Runtime\IodineStringBuilder.cs" />
+    <Compile Include="Runtime\IodineTuple.cs" />
+    <Compile Include="Runtime\IodineIterableMixin.cs" />
+    <Compile Include="Runtime\StandardModules\PsUtilsModule.cs" />
+    <Compile Include="Util\MarshalUtil.cs" />
+    <Compile Include="Runtime\IodineEnumValue.cs" />
+    <Compile Include="Compiler\Ast\RegexExpression.cs" />
+    <Compile Include="Compiler\FunctionParameter.cs" />
+    <Compile Include="Compiler\DecompositionParameter.cs" />
+    <Compile Include="Runtime\IodineParameter.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Runtime\" />
+    <Folder Include="Compiler\" />
+    <Folder Include="Runtime\Debug\" />
+    <Folder Include="Interop\" />
+    <Folder Include="Interop\TypeMappings\" />
+    <Folder Include="Compiler\Emit\" />
+    <Folder Include="Runtime\StandardModules\" />
+    <Folder Include="Util\" />
+    <Folder Include="Compiler\Ast\" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <StandardHeader IncludeInNewFiles="True" Text="/**&#xA;  * Copyright (c) 2015, phath0m All rights reserved.&#xA;&#xA;  * Redistribution and use in source and binary forms, with or without modification,&#xA;  * are permitted provided that the following conditions are met:&#xA;  * &#xA;  *  * Redistributions of source code must retain the above copyright notice, this list&#xA;  *    of conditions and the following disclaimer.&#xA;  * &#xA;  *  * Redistributions in binary form must reproduce the above copyright notice, this&#xA;  *    list of conditions and the following disclaimer in the documentation and/or&#xA;  *    other materials provided with the distribution.&#xA;&#xA;  * Neither the name of the copyright holder nor the names of its contributors may be&#xA;  * used to endorse or promote products derived from this software without specific&#xA;  * prior written permission.&#xA;  * &#xA;  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY&#xA;  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES&#xA;  * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT&#xA;  * SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,&#xA;  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED&#xA;  * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR&#xA;  * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN&#xA;  * CONTRACT ,STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN&#xA;  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH&#xA;  * DAMAGE.&#xA;/**" />
+          <TextStylePolicy TabWidth="4" IndentWidth="4" RemoveTrailingWhitespace="True" FileWidth="80" TabsToSpaces="True" NoTabsAfterNonTabs="True" EolMarker="Unix" scope="text/plain" />
+          <XmlFormattingPolicy scope="application/xml">
+            <DefaultFormat OmitXmlDeclaration="False" NewLineChars="&#xA;" IndentContent="True" ContentIndentString="&#x9;" AttributesInNewLine="False" MaxAttributesPerLine="10" AttributesIndentString="&#x9;" WrapAttributes="False" AlignAttributes="False" AlignAttributeValues="False" QuoteChar="&quot;" SpacesBeforeAssignment="0" SpacesAfterAssignment="0" EmptyLinesBeforeStart="0" EmptyLinesAfterStart="0" EmptyLinesBeforeEnd="0" EmptyLinesAfterEnd="0" />
+          </XmlFormattingPolicy>
+          <CSharpFormattingPolicy IndentBlock="True" IndentBraces="False" IndentSwitchCaseSection="True" LabelPositioning="OneLess" NewLinesForBracesInTypes="True" NewLinesForBracesInMethods="True" SpaceWithinMethodDeclarationParenthesis="False" SpaceBetweenEmptyMethodDeclarationParentheses="False" SpaceWithinMethodCallParentheses="False" SpaceBetweenEmptyMethodCallParentheses="False" SpaceAfterControlFlowStatementKeyword="True" SpaceWithinExpressionParentheses="False" SpaceWithinCastParentheses="False" SpaceWithinOtherParentheses="False" SpaceAfterCast="False" SpacesIgnoreAroundVariableDeclaration="False" SpaceBetweenEmptySquareBrackets="False" SpaceWithinSquareBrackets="False" SpaceAfterColonInBaseTypeDeclaration="True" SpaceAfterComma="True" SpaceAfterDot="False" SpaceAfterSemicolonsInForStatement="True" SpaceBeforeColonInBaseTypeDeclaration="True" SpaceBeforeComma="False" SpaceBeforeDot="False" SpaceBeforeSemicolonsInForStatement="False" SpacingAroundBinaryOperator="Single" WrappingPreserveSingleLine="True" WrappingKeepStatementsOnSingleLine="True" PlaceSystemDirectiveFirst="True" IndentSwitchSection="False" NewLinesForBracesInProperties="False" NewLinesForBracesInAccessors="False" NewLinesForBracesInAnonymousMethods="False" NewLinesForBracesInControlBlocks="False" NewLinesForBracesInAnonymousTypes="False" NewLinesForBracesInObjectCollectionArrayInitializers="False" NewLinesForBracesInLambdaExpressionBody="False" NewLineForElse="False" NewLineForCatch="False" NewLineForFinally="False" NewLineForMembersInObjectInit="False" NewLineForMembersInAnonymousTypes="False" NewLineForClausesInQuery="False" SpacingAfterMethodDeclarationName="True" SpaceAfterMethodCallName="True" SpaceBeforeOpenSquareBracket="True" scope="text/x-csharp" />
+          <NameConventionPolicy>
+            <Rules>
+              <NamingRule Name="Namespaces" AffectedEntity="Namespace" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Types" AffectedEntity="Class, Struct, Enum, Delegate" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Interfaces" AffectedEntity="Interface" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True">
+                <RequiredPrefixes>
+                  <String>I</String>
+                </RequiredPrefixes>
+              </NamingRule>
+              <NamingRule Name="Attributes" AffectedEntity="CustomAttributes" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True">
+                <RequiredSuffixes>
+                  <String>Attribute</String>
+                </RequiredSuffixes>
+              </NamingRule>
+              <NamingRule Name="Event Arguments" AffectedEntity="CustomEventArgs" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True">
+                <RequiredSuffixes>
+                  <String>EventArgs</String>
+                </RequiredSuffixes>
+              </NamingRule>
+              <NamingRule Name="Exceptions" AffectedEntity="CustomExceptions" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True">
+                <RequiredSuffixes>
+                  <String>Exception</String>
+                </RequiredSuffixes>
+              </NamingRule>
+              <NamingRule Name="Methods" AffectedEntity="Methods" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Static Readonly Fields" AffectedEntity="ReadonlyField" VisibilityMask="Internal, Protected, Public" NamingStyle="PascalCase" IncludeInstanceMembers="False" IncludeStaticEntities="True" />
+              <NamingRule Name="Fields (Non Private)" AffectedEntity="Field" VisibilityMask="Internal, Protected, Public" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="ReadOnly Fields (Non Private)" AffectedEntity="ReadonlyField" VisibilityMask="Internal, Protected, Public" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="False" />
+              <NamingRule Name="Fields (Private)" AffectedEntity="Field, ReadonlyField" VisibilityMask="Private" NamingStyle="CamelCase" IncludeInstanceMembers="True" IncludeStaticEntities="False">
+                <AllowedPrefixes>
+                  <String>_</String>
+                  <String>m_</String>
+                </AllowedPrefixes>
+              </NamingRule>
+              <NamingRule Name="Static Fields (Private)" AffectedEntity="Field" VisibilityMask="Private" NamingStyle="CamelCase" IncludeInstanceMembers="False" IncludeStaticEntities="True" />
+              <NamingRule Name="ReadOnly Fields (Private)" AffectedEntity="ReadonlyField" VisibilityMask="Private" NamingStyle="CamelCase" IncludeInstanceMembers="True" IncludeStaticEntities="False">
+                <AllowedPrefixes>
+                  <String>_</String>
+                  <String>m_</String>
+                </AllowedPrefixes>
+              </NamingRule>
+              <NamingRule Name="Constant Fields" AffectedEntity="ConstantField" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Properties" AffectedEntity="Property" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Events" AffectedEntity="Event" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Enum Members" AffectedEntity="EnumMember" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Parameters" AffectedEntity="Parameter" VisibilityMask="VisibilityMask" NamingStyle="CamelCase" IncludeInstanceMembers="True" IncludeStaticEntities="True" />
+              <NamingRule Name="Type Parameters" AffectedEntity="TypeParameter" VisibilityMask="VisibilityMask" NamingStyle="PascalCase" IncludeInstanceMembers="True" IncludeStaticEntities="True">
+                <RequiredPrefixes>
+                  <String>T</String>
+                </RequiredPrefixes>
+              </NamingRule>
+            </Rules>
+          </NameConventionPolicy>
+          <VersionControlPolicy>
+            <CommitMessageStyle Header="" Indent="" FirstFilePrefix="* " FileSeparator=":&#xA;* " LastFilePostfix=": " LineAlign="2" InterMessageLines="1" IncludeDirectoryPaths="False" Wrap="True" />
+          </VersionControlPolicy>
+          <TextStylePolicy FileWidth="120" TabWidth="4" IndentWidth="4" RemoveTrailingWhitespace="True" EolMarker="Native" TabsToSpaces="True" NoTabsAfterNonTabs="True" scope="text/x-fsharp" />
+          <TextStylePolicy TabWidth="4" IndentWidth="4" RemoveTrailingWhitespace="True" EolMarker="Native" FileWidth="80" TabsToSpaces="True" NoTabsAfterNonTabs="True" scope="text/x-csharp" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>

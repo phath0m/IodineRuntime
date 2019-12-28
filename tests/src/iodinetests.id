@@ -1,0 +1,13 @@
+use describe from espresso
+
+use .json_test
+use .language_tests
+use .iterutils_test
+use .collections_test
+
+describe ("Iodine", lambda (test) {
+    language_tests.run_tests (test)
+    iterutils_test.run_tests (test)
+    collections_test.run_tests (test)
+    json_test.run_tests (test)
+})

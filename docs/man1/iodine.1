@@ -1,0 +1,92 @@
+.TH iodine 1 "September 2017" "version 0.17" 
+.SH NAME
+iodine
+
+.SH SYNOPSIS
+.B iodine
+[
+.B -c
+]
+[
+.B -d
+]
+[
+.B -e
+.I code
+]
+[
+.B -h
+]
+[
+.B -l
+]
+[
+.B -v
+]
+[
+.B -w
+]
+[
+.B -x
+]
+[
+.B --no-cache
+]
+[
+.B --no-optimize
+]
+[
+.I file
+]
+.SH DESCRIPTION
+iodine is a general purpose, dynamically typed, multi-paradigm programming language. The syntax of iodine is derived from several popular languages, including Python, C, and Javascript.
+
+." next paragraph
+.PP
+Note however that iodine is an on-going hobby project. Development is on-going, so bugs may be encountered.
+
+Please report any bugs to the Iodine github repository found at
+.B http://github.com/IodineLang/Iodine
+
+.SH COMMAND LINE OPTIONS
+
+.B -c
+Checks syntax only
+
+.B -d
+Runs a debug server
+
+.B -e
+.I code	
+Evalutes a string of iodine code
+
+.B -f
+Use the built in REPL shell instead of iosh
+
+.B -h
+Display this message
+
+.B -l
+Assume "
+.B while (true) {
+.I ...
+.B }
+" around this program
+
+.B -r
+Launch an interactive REPL shell after execution of the supplied file is finished.
+
+.B -v
+Display the version of this interpreter
+
+.B -w
+Enable all warnings
+
+.B -x
+Disable all warnings
+
+.B --no-cache
+Do not cache compiled code
+
+.B --no-optimize
+Disable all optimizations

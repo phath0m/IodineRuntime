@@ -1,0 +1,1 @@
+{"entrypoint" : "src/iodinetests.id","sources" : ["src"],"dependencyLocation" : "src","dependencies" : {"espresso" : "^1.1.5"},"packageName" : "Iodine Tests"}

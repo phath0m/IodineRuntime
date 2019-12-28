@@ -1,0 +1,59 @@
+#! /usr/bin/iodine
+
+use os
+use sys
+use random
+use fsutils
+use iododoc
+use argparse
+
+func main (args) {
+    if (len (args) == 0) {
+        print ("Usage iododoc <module>")
+        sys.exit (-1)
+    }
+    
+    parser = argparse.ArgumentParser ()
+
+    parser.add ("module")
+    parser.add ("-f", nargs=1, fallback="markdown")
+    parser.add ("-o", nargs=1, fallback="#{args[0]}.md")
+
+    result = parser.parse (args)
+
+
+    module = result ["module"]
+
+    format = result ["f"]
+    ofile = result ["o"]
+   
+     
+    try {
+        code = loadmodule (module)
+        
+        items = iododoc.compiledoc (code)
+       
+        run_interactive_docs (module, code, items)
+
+    } except (e) {
+        print (Str (e.message))
+        print (e.stacktrace)
+    }
+}
+
+func run_interactive_docs (module_name, module, module_items) {
+    tmp_name = "/tmp/{}".format (random.cryptostr (8))
+
+
+    with (fd = open (tmp_name, "w")) {
+
+        doc = iododoc.TerminalFormatter ()
+
+        doc.format_module (fd, module_name, module.__doc__, module_items)
+    }
+
+    os.system ("less -ir #{tmp_name}")
+
+}
+
+func rand_filename () => "".join ((8).times (lambda (p) => chr (random.randint (65, 120))))

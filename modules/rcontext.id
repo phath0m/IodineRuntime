@@ -1,0 +1,24 @@
+
+class RestrictedContext {
+    
+    func RestrictedContext (self, *args) {
+        self._dict = {}
+    }
+
+    func invoke (self, item) {
+        __globals__.invoke (item, self._dict)
+    }
+    
+    func __setItem__ (self, key, value) {
+        self._dict [key] = value
+    }
+    
+    func __enter__ (self) {
+        self.__originalGlobals__ = __globals__
+        global __globals__ = self._dict
+    }
+    
+    func __exit__ (self) {
+        global __globals__ = self.__originalGlobals__
+    }
+}

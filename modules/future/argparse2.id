@@ -1,0 +1,181 @@
+
+
+class Options {
+    func Options(self, docstr) {
+        self._doc = docstr 
+        self._usages = []
+        self._parse_doc_str(docstr)
+    }
+
+    func parse(self, argv) {
+        for usage_line in self._usages {
+
+            template = " ".join(usage_line.split(' ')[1:])
+
+            result = self._match_args(template, argv)
+            
+            if result isnot Null {
+                return result
+            }
+        }
+
+        return null
+    }
+
+    func _parse_doc_str(self, docstr) {
+        lines = docstr.split('\n')
+
+        usage_lines = lines.filter(lambda(p) => p.startswith('usage: '))
+                           .map(lambda(p) => p.substr(7).trim())
+
+        self._usages = usage_lines
+    }
+
+
+    func _parse_required_flags(self, template) {
+        required_flags = []
+
+        print("Parsing required args: #{template}")
+
+        i = 0
+
+        while i < len(template) {
+
+
+            lookahead = ""
+            arg = template[i]
+
+            if i + 1 < len(template) {
+                lookahead = template[i + 1]
+            }
+
+            if arg.startswith("-") && !arg.startswith("--") {
+                print("append #{arg}")
+                required_flags.appendrange(List(arg[1:]))
+            }
+
+            i += 1
+
+        }
+
+        return required_flags
+    }
+
+    func _parse_optional_flags(self, template) {
+        optional_flags = []
+
+        for arg in template {
+            if arg.startswith("[") && arg.endswith("]") {
+
+                flags = self._parse_required_flags((arg[1:-1],))
+
+                optional_flags.appendrange(flags)
+            }
+        }
+
+        return optional_flags
+    }
+
+    func _parse_positional_args(self, template) {
+        positional_args = []
+
+        last_arg = ""
+
+        for arg in template {
+
+            if arg.upper() == arg && !last_arg.startswith("--") {
+                positional_args.append(arg)
+            }
+
+            last_arg = arg
+        }
+
+        return positional_args
+    }
+
+    func _parse_named_args(self, template) {
+        named_args = {}
+
+        last_arg = ""
+
+        for arg in template {
+
+            if arg.upper() == arg && last_arg.startswith("--") {
+                named_args[last_arg] = arg
+            }
+
+            last_arg = arg
+        }
+
+        return named_args
+
+    }
+
+    func _match_args(self, usage, argv) {
+        template = usage.split(' ')
+        
+
+        # Collect all switches from the supplied usage string
+
+        required_flags = self._parse_required_flags(template)
+        optional_flags = self._parse_optional_flags(template) 
+        positional_args = self._parse_positional_args(template)
+        named_args = self._parse_named_args(template)
+
+        return_dict = {
+
+        }
+
+
+        # Set all optional flags to false
+
+        for flag in optional_flags {
+            return_dict["-" + flag] = false
+        }
+
+        i = 0
+
+        total_positional_args = 0
+
+
+        while i < len(argv) {
+            word = argv[i]
+
+            if  word.startswith("--") &&
+                named_args.contains(word) &&
+                i + 1 < len(argv) {
+    
+                    value = argv[i + 1]
+                    key = named_args[word]
+                    return_dict[word] = value
+                    return_dict[key] = value
+                    i += 2
+            }
+            else if word.startswith("-") {
+                for opt in List(word[1:]) {
+                    return_dict["-" + opt] = true
+                }
+                i += 1
+            }
+            else if total_positional_args < len(positional_args) {
+                arg_name = positional_args[total_positional_args]
+                return_dict[arg_name] = word
+                total_positional_args += 1
+                i += 1 
+            } else {
+                return null
+            }
+        }
+
+
+        for key in required_flags {
+            if !return_dict.contains('-' + key) {
+                print("not today fam")
+                return null
+            }
+        }
+
+
+        return return_dict
+    }
+}

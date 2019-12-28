@@ -1,0 +1,238 @@
+/**
+ * Provides functions for iterating over items of any iterable
+ * @module std/builtin
+ * @author SplittyDev
+ */
+
+trait Iterable {
+    func __iter__ (self)
+}
+
+/**
+ * Chains multiple iterables to one
+ * @variadic Iterable The iterables to be chained together
+ * @yields Object The items of the chain
+ */
+func chain (*iterables) {
+    typecast (Iterable, iterables)
+    for iterable in iterables {
+        typecast (Iterable, iterable)
+        for item in iterable {
+            yield item
+        }
+    }
+}
+
+/**
+ * Checks if an Iterable contains any items
+ * If a callback is passed, runs filter and checks
+ * if the result is not Null
+ * @param iterable : Iterable The iterator
+ * @variadic Object The callback (only pass one callback)
+ * @returns Bool Whether the check succeeded or failed
+ */
+func any (iterable: Iterable, *callback) {
+    callbacklen = len (callback)
+    if callbacklen > 1 {
+        raise ArgumentException ("callback", "Pass zero or one callbacks")
+    }
+    
+    if len (iterable) > 0 && callbacklen > 0 {
+        return filter (iterable, callback [0]) isnot Null
+    }
+    
+    return len (iterable) > 0
+}
+
+/**
+ * Executes a function for every element of an Iterable
+ * @param iterable : Iterable The iterable
+ * @param callback The callback
+ */
+func each (iterable: Iterable, callback) {
+    for item in iterable {
+        callback (item)
+    }
+}
+
+/**
+ * Takes the first n elements
+ * @param iterable : Iterable The iterable
+ * @param count : Int The number of elements to take
+ * @yields Object The elements
+ */
+func take (iterable: Iterable, count) {
+    i = 0
+    for item in iterable {
+        if i < count {
+            yield item
+        }
+        i += 1
+    }
+}
+
+/**
+ * Takes elements while a condition is true
+ * @param iterable : Iterable The iterable
+ * @param callback The condition
+ * @yields Object The elements
+ */
+func takewhile (iterable: Iterable, callback) {
+    stop = false
+    for item in iterable {
+        if !stop && !typecast (Bool, callback (item)) {
+            stop = true
+        }
+        if stop {
+            continue
+        }
+        yield item
+    }
+}
+
+/**
+ * Skips the first n elements
+ * @param iterable : Iterable The iterable
+ * @param count : Int The number of elements to skip
+ * @yields Object The remaining elements
+ */
+func skip (iterable: Iterable, count) {
+    i = 0
+    for item in iterable {
+        if i >= count {
+            yield item
+        }
+        i += 1
+    }
+}
+
+/**
+ * Skips elements while a condition is true
+ * @param iterable : Iterable The iterable
+ * @param callback The condition
+ * @yields Object The remaining elements
+ */
+func skipwhile (iterable, callback) {
+    _skip = true
+    for item in iterable {
+        if _skip && !typecast (Bool, callback (item)) {
+            _skip = false
+        }
+        if _skip {
+            continue
+        }
+        yield item
+    }
+}
+
+/**
+ * Adds up all items of an iterable
+ * @param iterable : Iterable The iterable
+ * @param **kwargs Optional arguments
+ * @kwparam start The value to start with
+ * @returns Object The result
+ */
+func sum (iterable, **kwargs) {
+    typecast (Iterable, iterable)
+    result = 0
+    for key in kwargs {
+        match key {
+            case "start" => result = kwargs [key]
+            case _ { }
+        }
+    }
+    for item in iterable {
+        result += item
+    }
+    return result
+}
+
+/** Zips iterables together
+ * @variadic Iterable The iterables
+ * @yields Tuple The zipped iterable parts
+ */
+func zip (*iterables) {
+    typecast (Iterable, iterables)
+    iteratorCount = len (iterables)
+    iterators = List ()
+    iteratorIndices = List ()
+    iteratorCounts = List ()
+    for iterator in iterables {
+        typecast (Iterable, iterator)
+        iterators.append (iterator)
+        iteratorIndices.append (0)
+        iteratorCounts.append (len (iterator))
+    }
+    loop = true
+    while loop {
+        objs = []
+        for i in 0 .. iteratorCount {
+            if iteratorCounts [i] == iteratorIndices [i] {
+                loop = false
+                break
+            }
+            objs.append (iterators [i] [iteratorIndices [i]])
+            iteratorIndices [i] += 1
+        }
+        if loop {
+            yield Tuple (objs)
+        }
+    }
+}
+
+/**
+ * Reduces an iterable by iterating over it,
+ * passing, for all items, the result of the previous item and the current item
+ * to a function, whose result is then returned to the caller.
+ * @param iterable : Iterable The iterable
+ * @param callback The callback
+ * @param **kwargs Optional arguments
+ * @kwparam start The value to start with
+ * @returns Object The result of the reduction
+ */
+func reduce (iterable: Iterable, callback, **kwargs) {
+    # TODO: Use trait Callable/Invokable for callback
+    result = 0
+    for key in kwargs {
+        match key {
+            case "start" => result = kwargs [key]
+            case _ { }
+        }
+    }
+    for item in iterable {
+        result = callback (result, item)
+    }
+    return result
+}
+
+/**
+ * Iterates over an iterable, passing each to a function.
+ * If that functions returns true, the item is appended to a list,
+ * which is then returned to the caller.
+ * @param iterable : Iterable The iterable
+ * @param callback The callback
+ * @returns List The filtered items
+ */
+func filter (iterable: Iterable, callback) {
+    # TODO: Use trait Callable/Invokable for callback
+    for item in iterable {
+        if callback (item) {
+            yield item
+        }
+    }
+}
+
+/**
+ * Iterates over an iterable, passing each to a function.
+ * The return value of each function call is appended to a list,
+ * which is then returned to the caller.
+ * @param iterable : Iterable The iterable
+ * @param callback The callback
+ * @returns List The mapped items
+ */
+func map (iterable: Iterable, callback) {
+    # TODO: Use trait Callable/Invokable for callback
+    for item in iterable {
+        yield callback (item)
+    }
+}

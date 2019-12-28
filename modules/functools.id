@@ -1,0 +1,157 @@
+/**
+ * Provides function decorators for various purposes
+ * @module functools
+ * @author SplittyDev phath0m
+ */
+
+use inspect
+
+/**
+ * Decorator to achieve automatic memoization
+ * by caching the return values.
+ * @param f The function
+ */
+func memoize (f) {
+    func wrapper (*args) {
+        key = args
+        if wrapper.cache.contains (key) {
+            wrapper.hits += 1
+            return wrapper.cache [key]
+        }
+        wrapper.misses += 1
+        return (wrapper.cache [key] = f (*args))
+    }
+    wrapper.cache = Dict ()
+    wrapper.hits = 0
+    wrapper.misses = 0
+    return wrapper
+}
+
+/**
+ * Represents a multifunction where signatures are defined based on argument
+ * count
+ */
+class MultiFunc {
+    func MultiFunc (self) {
+        self._dispatchTable = {}
+        self._default = lambda (args) {
+            raise OverloadException ()
+        }
+    }
+
+    /**
+     * Defines a function that will be invoked when this multifunc instance
+     * is called matching this signature
+     * @param method Method callback
+     * @param argc How many arguments are required for callback
+     */
+    func define (self, method, argc) {
+        self._dispatchTable [argc] = method   
+    }
+
+    /**
+     * Defines a default callback which will be invoked if no suitable
+     * overload was found.
+     * @param meth Method Callback
+     */
+    func defineDefault (self, meth) {
+        self._default = meth
+    }
+
+    func __invoke__ (self, *args) {
+        size = len (args)
+        if self._dispatchTable.contains (size) {
+            return self._dispatchTable [size] (*args)
+        } else {
+            return self._default (args)
+        }   
+    }
+}
+
+/**
+ * Represents a multifunction where signatures are defined based on argument
+ * types
+ */
+class TypedMultiFunc {
+    class TypedOverload {
+        func TypedOverload (self, method, types) {
+            self._types = types
+            self._method = method
+        }
+
+
+        func isMatch (self, args) {
+            if len (args) != len (self._types) {
+                return false
+            }
+
+            for i in 0 .. len (args) {
+                if args [i] isnot self._types [i] {
+                    return false
+                }
+            }
+
+            return true
+        }
+    }
+
+    func TypedMultiFunc (self) {
+        self._dispatchTable = []
+        self._default = lambda (args) {
+            raise OverloadException ()
+        }
+    }
+    
+    /**
+     * Defines an overload which will be invoked if the arguments passed to
+     * this multifunction matches the types described in type list
+     * @param method Method callback
+     * @param typeList A list of types that define this signature
+     */
+    func define (self, method, *typeList) {
+        self._dispatchTable.append (TypedMultiFunc.TypedOverload (method, typeList))
+    }
+
+    func __invoke__ (self, *args) {
+        matches = filter (self._dispatchTable, lambda (p) => p.isMatch (args))
+        if len (matches) == 0 {
+            return self._default (args)
+        }
+        
+        return matches [0]._method (*args)
+    }
+}
+
+/*
+ * Multi func registry 
+ */
+_multifuncMap = {}
+
+func multi (method) {
+    argc = len (inspect.getargspec (method))
+    
+    qualname = "#{method.__module__}.#{method.__name__}"
+    
+    if !_multifuncMap.contains (qualname) {
+        _multifuncMap [qualname] = MultiFunc ()
+    }
+    
+    _multifuncMap [qualname].define (method, argc)
+    
+    return _multifuncMap [qualname]
+}
+
+func typedmulti (*types) {
+    func inner (method) {
+        qualname = "#{method.__module__}.#{method.__name__}"
+
+        if !_multifuncMap.contains (qualname) {
+            _multifuncMap [qualname] = TypedMultiFunc ()
+        }
+
+        _multifuncMap [qualname].define (method, *types)
+        return _multifuncMap [qualname]
+    }
+    
+    return inner
+}

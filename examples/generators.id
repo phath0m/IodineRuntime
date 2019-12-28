@@ -1,0 +1,15 @@
+#! /usr/bin/iodine
+
+
+func oneToOneMillion () {
+	for (i in 0 .. 1000000) {
+		yield i;
+	}
+}
+
+func main () {
+	print ("Counting from one to one million!");
+	foreach (i in oneToOneMillion ()) {
+		print (i);
+	}
+}

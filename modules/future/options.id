@@ -1,0 +1,15 @@
+
+
+class Some {
+    func Some (self, value) {
+        self._value = value
+    }
+
+    func __unwrap__ (self) {
+        return self._value
+    }
+}
+
+class None {
+
+}

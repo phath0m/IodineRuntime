@@ -1,0 +1,22 @@
+#! /usr/bin/iodine
+
+func main (args) {
+	numberList = List (0 .. 10) # List of numbers one from 10
+
+	print ("Map using lambda")
+
+	for (n in map (numberList, lambda (x) => x + 10)) {
+		print (n)
+	}
+
+	print ("Map using function")
+
+	for (n in map (numberList, addTen)) {
+		print (n)
+	}
+	
+}
+
+func addTen (x) {
+	return x + 10
+}
